@@ -1,5 +1,8 @@
-import json
+from flask import Flask, render_template, request, jsonify
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
+import json
+
+app = Flask(__name__)
 
 # Load the inspection data
 with open('inspection_data.json', 'r') as f:
@@ -45,30 +48,28 @@ def summarize_with_gpt2(text):
     summary = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return summary.strip()
 
-def manual_input_loop():
-    responses = {}
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/questions', methods=['GET'])
+def get_questions():
+    questions = []
+    for category in question_sequence:
+        questions.extend(questions_by_category.get(category, []))
+    return jsonify(questions)
+
+@app.route('/submit', methods=['POST'])
+def submit_responses():
+    responses = request.get_json()
     concerning_responses = {}
 
     for category in question_sequence:
-        questions = questions_by_category.get(category, [])
-        
-        for question in questions:
-            # Ask the user the question
-            print(f"System: {question}")
-            
-            # Get the user's response
-            user_answer = input("Your response: ")
-
-            # Store the user's response
-            if category not in responses:
-                responses[category] = {}
-            responses[category][question] = user_answer
-
-            # Check if the response is concerning and store it
-            if is_concerning(user_answer):
+        for question, answer in responses.items():
+            if is_concerning(answer):
                 if category not in concerning_responses:
                     concerning_responses[category] = {}
-                concerning_responses[category][question] = user_answer
+                concerning_responses[category][question] = answer
 
     # Save all responses
     with open('user_responses.json', 'w') as f:
@@ -87,8 +88,7 @@ def manual_input_loop():
 
     # Summarize with GPT-2
     summary = summarize_with_gpt2(text_for_summarization)
-    print("\n--- GPT-2 Summarized Concerning Parts ---")
-    print(summary)
+    return jsonify({'summary': summary})
 
-if __name__ == "__main__":
-    manual_input_loop()
+if __name__ == '__main__':
+    app.run(debug=True)
