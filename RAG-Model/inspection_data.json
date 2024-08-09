@@ -1,5 +1,22 @@
 [
     {
+        "category": "Header",
+        "questions": [
+            "What is the Truck Serial Number? (e.g., 7301234, 730EJ73245, 73592849, 735EJBC9723)",
+            "What is the Truck Model? (e.g., 730, 730 EJ, 735, 745)",
+            "What is the Inspection ID? (Auto-incremented unique number)",
+            "Who is the Inspector? (Name)",
+            "What is the Inspection Employee ID?",
+            "When was the Inspection Date & Time?",
+            "Where was the Location of Inspection?",
+            "What are the Geo Coordinates of Inspection? (Optional, in case of remote location)",
+            "What are the Service Meter Hours (Odometer reading)?",
+            "What is the Inspector Signature?",
+            "Who is the Customer/Company Name?",
+            "What is the CAT Customer ID?"
+        ]
+    },
+    {
         "category": "Tire Information",
         "questions": [
             "How’s the pressure on the left front tire? Is it within the recommended range?",

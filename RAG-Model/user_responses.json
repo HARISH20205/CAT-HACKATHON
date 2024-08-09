@@ -1,0 +1,14 @@
+{
+    "Tire Information": {
+        "How\u2019s the pressure on the left front tire? Is it within the recommended range?": "yes",
+        "Can you check the pressure for the right front tire? Let me know if it\u2019s looking good.": "good",
+        "How would you rate the condition of the left front tire? Is it in good shape, okay, or does it need replacement?": "replacement",
+        "What\u2019s the condition of the right front tire? Is it still good, okay, or does it need replacing?": "replacement",
+        "How about the pressure on the left rear tire? Is it stable?": "stable",
+        "What\u2019s the pressure like on the right rear tire? Any adjustments needed?": "yes",
+        "How does the left rear tire look? Is it in good condition, okay, or needs a change?": "change",
+        "What\u2019s the status of the right rear tire? Is it in good shape, okay, or needs replacing?": "good",
+        "Can you provide a brief overview of the tire conditions and pressures?": "-",
+        "Please upload images of each tire in the order mentioned.": "-"
+    }
+}
