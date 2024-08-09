@@ -1,0 +1,79 @@
+TIRES = {
+    "Tire Pressure": {
+        "Left Front": None,
+        "Right Front": None,
+        "Left Rear": None,
+        "Right Rear": None
+    },
+    "Tire Condition": {
+        "Left Front": "Good / Ok / Needs Replacement",
+        "Right Front": "Good / Ok / Needs Replacement",
+        "Left Rear": "Good / Ok / Needs Replacement",
+        "Right Rear": "Good / Ok / Needs Replacement"
+    },
+    "Overall Tire Summary": "<1000 characters",
+    "Attached Images": [
+        "Left Front Image", 
+        "Right Front Image", 
+        "Left Rear Image", 
+        "Right Rear Image"
+    ]
+}
+
+
+BATTERY = {
+    "Battery Make": "Example: CAT, ABC, XYZ, etc.",
+    "Battery Replacement Date": None,
+    "Battery Voltage": "Example: 12V / 13V",
+    "Battery Water Level": "Good / Ok / Low",
+    "Condition of Battery": {
+        "Damage": "Y/N",
+        "Attached Image": "If Y, attach image"
+    },
+    "Leak/Rust in Battery": "Y/N",
+    "Battery Overall Summary": "<1000 characters",
+    "Attached Images": ["Battery Image"]
+}
+
+
+EXTERIOR = {
+    "Rust/Dent/Damage to Exterior": {
+        "Exist": "Y/N",
+        "Notes": "If Y, explain in notes",
+        "Attached Image": "If Y, attach image"
+    },
+    "Oil Leak in Suspension": "Y/N",
+    "Overall Summary": "<1000 characters",
+    "Attached Images": ["Exterior Image"]
+}
+
+BRAKES = {
+    "Brake Fluid Level": "Good / Ok / Low",
+    "Brake Condition": {
+        "Front": "Good / Ok / Needs Replacement",
+        "Rear": "Good / Ok / Needs Replacement"
+    },
+    "Emergency Brake": "Good / Ok / Low",
+    "Brake Overall Summary": "<1000 characters",
+    "Attached Images": ["Brake Images"]
+}
+
+ENGINE = {
+    "Rust/Dents/Damage in Engine": {
+        "Exist": "Y/N",
+        "Notes": "If Y, explain in notes",
+        "Attached Image": "If Y, attach image"
+    },
+    "Engine Oil Condition": "Good / Bad",
+    "Engine Oil Color": "Clean / Brown / Black",
+    "Brake Fluid Condition": "Good / Bad",
+    "Brake Fluid Color": "Clean / Brown / Black",
+    "Any Oil Leak in Engine": "Y/N",
+    "Overall Summary": "<1000 characters",
+    "Attached Images": ["Engine Images"]
+}
+
+Voice_of_Customer = {
+    "Feedback": "Customer feedback",
+    "Images": ["Images related to issues discussed"]
+}
