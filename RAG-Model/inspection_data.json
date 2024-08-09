@@ -1,0 +1,72 @@
+[
+    {
+        "category": "Tire Information",
+        "questions": [
+            "How’s the pressure on the left front tire? Is it within the recommended range?",
+            "Can you check the pressure for the right front tire? Let me know if it’s looking good.",
+            "How would you rate the condition of the left front tire? Is it in good shape, okay, or does it need replacement?",
+            "What’s the condition of the right front tire? Is it still good, okay, or does it need replacing?",
+            "How about the pressure on the left rear tire? Is it stable?",
+            "What’s the pressure like on the right rear tire? Any adjustments needed?",
+            "How does the left rear tire look? Is it in good condition, okay, or needs a change?",
+            "What’s the status of the right rear tire? Is it in good shape, okay, or needs replacing?",
+            "Can you provide a brief overview of the tire conditions and pressures?",
+            "Please upload images of each tire in the order mentioned."
+        ]
+    },
+    {
+        "category": "Battery Information",
+        "questions": [
+            "What brand is the battery? For example, CAT, ABC, XYZ?",
+            "When was the battery last replaced?",
+            "What’s the current voltage of the battery? Is it 12V, 13V, or something else?",
+            "How’s the water level in the battery? Is it good, okay, or low?",
+            "Is there any visible damage to the battery? If yes, please upload an image.",
+            "Are there any signs of leakage or rust on the battery? Yes or no?",
+            "Can you summarize the battery’s condition in a few sentences?",
+            "Please attach images of the battery."
+        ]
+    },
+    {
+        "category": "Exterior Information",
+        "questions": [
+            "Do you see any rust, dents, or damage on the exterior? If yes, can you provide details and attach images?",
+            "Is there any oil leak in the suspension area? Yes or no?",
+            "Can you provide a summary of the exterior condition?",
+            "Please attach images of any exterior issues or damage."
+        ]
+    },
+    {
+        "category": "Brakes Information",
+        "questions": [
+            "How’s the brake fluid level? Is it good, okay, or low?",
+            "What’s the condition of the front brakes? Are they good, okay, or do they need replacement?",
+            "How about the rear brakes? Are they in good condition, okay, or need replacing?",
+            "What’s the status of the emergency brake? Is it good, okay, or low?",
+            "Can you summarize the brake system’s condition in a few sentences?",
+            "Please upload images related to the brakes."
+        ]
+    },
+    {
+        "category": "Engine Information",
+        "questions": [
+            "Is there any rust, dent, or damage in the engine area? If yes, please describe and upload images.",
+            "How’s the condition of the engine oil? Is it good or bad?",
+            "What’s the color of the engine oil? Is it clean, brown, black, or another color?",
+            "How does the brake fluid look? Is it good or bad?",
+            "What’s the color of the brake fluid? Is it clean, brown, black, etc.?",
+            "Is there any oil leak in the engine? Yes or no?",
+            "Can you provide a brief summary of the engine condition?",
+            "Please attach images of the engine, especially if there are any issues."
+        ]
+    },
+    {
+        "category": "Voice of Customer",
+        "questions": [
+            "Have there been any comments or feedback from the customer? Please share.",
+            "What specific feedback has the customer provided about their vehicle?",
+            "Are there any particular issues the customer has mentioned that need addressing?",
+            "If there are any images related to the customer’s concerns or feedback, please upload them."
+        ]
+    }
+]
