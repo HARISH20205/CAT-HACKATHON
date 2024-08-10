@@ -1,5 +1,3 @@
 transformers
 scikit-learn
-speechrecognition
-pyttsx3
 numpy

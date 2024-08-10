@@ -1,8 +1,16 @@
 from flask import Flask, render_template, request, jsonify
+from pymongo import MongoClient
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import json
+import uuid  # Import uuid for unique identifiers
 
 app = Flask(__name__)
+
+# MongoDB setup with your connection string
+client = MongoClient('mongodb+srv://mantissa6789:Mantis2510@cluster0.9ramotn.mongodb.net/caterpillar-hackathon?retryWrites=true&w=majority')
+db = client['caterpillar-hackathon']  # Database name
+responses_collection = db['responses']  # Collection for storing responses
+concerning_responses_collection = db['concerning_responses']  # Collection for concerning responses
 
 # Load the inspection data
 with open('inspection_data.json', 'r') as f:
@@ -32,22 +40,6 @@ def is_concerning(response):
     response_lower = response.lower()
     return any(condition in response_lower for condition in concerning_conditions)
 
-def summarize_with_gpt2(text):
-    """Summarize text using GPT-2."""
-    if not text:
-        return "No concerning responses found."
-
-    tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-    model = GPT2LMHeadModel.from_pretrained('gpt2')
-
-    # Encode and generate summary
-    inputs = tokenizer.encode(text, return_tensors='pt', max_length=1024, truncation=True)
-    outputs = model.generate(inputs, max_length=100, num_beams=5, early_stopping=True)
-
-    # Decode summary
-    summary = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    return summary.strip()
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -56,39 +48,83 @@ def index():
 def get_questions():
     questions = []
     for category in question_sequence:
-        questions.extend(questions_by_category.get(category, []))
+        questions.append({
+            'category': category,
+            'questions': questions_by_category.get(category, [])
+        })
     return jsonify(questions)
 
 @app.route('/submit', methods=['POST'])
 def submit_responses():
-    responses = request.get_json()
+    responses = request.get_json()  # Expecting an array of objects
     concerning_responses = {}
+    all_responses_summary = []
 
-    for category in question_sequence:
-        for question, answer in responses.items():
-            if is_concerning(answer):
+    # Generate a unique identifier for this inspection session
+    inspection_id = str(uuid.uuid4())
+
+    # Process each response
+    for response in responses:
+        question = response['question']
+        answer = response['answer']
+        
+        # Check if the response is concerning
+        if is_concerning(answer):
+            category = next((cat for cat in question_sequence if question in questions_by_category.get(cat, [])), None)
+            if category:
                 if category not in concerning_responses:
                     concerning_responses[category] = {}
                 concerning_responses[category][question] = answer
+        
+        # Add to the complete summary
+        all_responses_summary.append((question, answer))
 
-    # Save all responses
-    with open('user_responses.json', 'w') as f:
-        json.dump(responses, f, indent=4)
+    # Save all responses to MongoDB with the inspection ID
+    for response in responses:
+        response['inspection_id'] = inspection_id  # Add the inspection ID to each response
+    responses_collection.insert_many(responses)
 
-    # Save concerning responses
-    with open('concerning_responses.json', 'w') as f:
-        json.dump(concerning_responses, f, indent=4)
+    # Save concerning responses to MongoDB
+    concerning_responses_collection.insert_one({'inspection_id': inspection_id, 'concerning_responses': concerning_responses})
 
     # Prepare text for summarization
-    text_for_summarization = ""
+    summary_text = ""
+    
+    # Include concerning responses in the summary
     for category, questions in concerning_responses.items():
-        text_for_summarization += f"Category: {category}\n"
+        summary_text += f"## {category} - Concerning Responses\n\n"
         for question, answer in questions.items():
-            text_for_summarization += f"Question: {question}\nResponse: {answer}\n"
+            summary_text += f"### **Question:** {question}\n\n"
+            summary_text += f"**Concerning Response:** {answer}\n\n"
+            summary_text += f"This response indicates a potential issue that requires further investigation or action. Please review the details and take appropriate measures to address the concern.\n\n"
 
-    # Summarize with GPT-2
-    summary = summarize_with_gpt2(text_for_summarization)
-    return jsonify({'summary': summary})
+    # Add all responses to the summary
+    summary_text += "## All Responses\n\n"
+    for question, answer in all_responses_summary:
+        # Check if the question was concerning
+        is_concerning_response = any(question in questions for questions in concerning_responses.values())
+        if is_concerning_response:
+            summary_text += f"### **Question:** {question}\n\n"
+            summary_text += f"**Response:** {answer} *(Concerning)*\n\n"
+            summary_text += f"This response suggests a potential problem that should be examined more closely. Please ensure that necessary steps are taken to rectify the situation.\n\n"
+        else:
+            summary_text += f"### **Question:** {question}\n\n"
+            summary_text += f"**Response:** {answer}\n\n"
+            summary_text += f"The provided response appears satisfactory. No immediate action is required for this item.\n\n"
+
+    return jsonify({'summary': summary_text})
+
+@app.route('/responses', methods=['GET'])
+def get_responses():
+    """Retrieve all responses from the database."""
+    responses = list(responses_collection.find({}, {'_id': 0}))  # Exclude the MongoDB ObjectId
+    return jsonify(responses)
+
+@app.route('/concerning-responses', methods=['GET'])
+def get_concerning_responses():
+    """Retrieve concerning responses from the database."""
+    concerning_responses = list(concerning_responses_collection.find({}, {'_id': 0}))  # Exclude the MongoDB ObjectId
+    return jsonify(concerning_responses)
 
 if __name__ == '__main__':
     app.run(debug=True)
