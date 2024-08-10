@@ -13,14 +13,16 @@ let currentCategoryIndex = 0;
 let currentQuestionIndex = 0;
 let responses = [];
 let categories = [];
-let speakMode = false; // Track Speak Mode status
-let listenMode = false; // Track Listening Mode status
+let speakMode = false;
+let listenMode = false;
+let mediaRecorder;
+let audioChunks = [];
 
 // Fetch questions from the backend
 fetch('/questions')
   .then(response => response.json())
   .then(data => {
-    console.log(data); // Log the fetched data
+    console.log(data);
     if (!Array.isArray(data)) {
       throw new Error('Expected an array of categories');
     }
@@ -38,7 +40,7 @@ function appendMessage(message, sender) {
   messageElement.className = sender === 'bot' ? 'bot-message' : 'user-message';
   messageElement.innerHTML = sender === 'bot' ? `<i class="fas fa-robot"></i> ${message}` : `${message} <i class="fas fa-user"></i>`;
   promptContainer.appendChild(messageElement);
-  promptContainer.scrollTop = promptContainer.scrollHeight; // Scroll to the bottom
+  promptContainer.scrollTop = promptContainer.scrollHeight;
 }
 
 function askGreeting() {
@@ -50,13 +52,8 @@ function askGreeting() {
   const randomIndex = Math.floor(Math.random() * greetings.length);
   appendMessage(greetings[randomIndex], 'bot');
   if (speakMode) {
-    textToSpeech(greetings[randomIndex]); // Convert greeting to speech
+    speakQuestion(greetings[randomIndex]);
   }
-}
-
-function textToSpeech(text) {
-  const speech = new SpeechSynthesisUtterance(text);
-  window.speechSynthesis.speak(speech);
 }
 
 function populateCarousel() {
@@ -66,7 +63,7 @@ function populateCarousel() {
 
     const categoryHeader = document.createElement('h3');
     categoryHeader.textContent = category.category;
-    categoryHeader.className = 'text-center'; // Center the header
+    categoryHeader.className = 'text-center';
     carouselItem.appendChild(categoryHeader);
 
     const questionContainer = document.createElement('div');
@@ -76,8 +73,8 @@ function populateCarousel() {
       category.questions.forEach((question, questionIndex) => {
         const questionElement = document.createElement('p');
         questionElement.textContent = question;
-        questionElement.style.display = 'none'; // Hide questions initially
-        questionElement.dataset.imageUpload = category.imageUpload ? category.imageUpload[questionIndex] : false; // Safely access imageUpload flag
+        questionElement.style.display = 'none';
+        questionElement.dataset.imageUpload = category.imageUpload ? category.imageUpload[questionIndex] : false;
         questionContainer.appendChild(questionElement);
       });
     } else {
@@ -102,24 +99,25 @@ function askNextQuestion() {
         `📝 Awesome, here's the next question: ${question}`
       ];
       const randomIndex = Math.floor(Math.random() * questionVariations.length);
-      appendMessage(questionVariations[randomIndex], 'bot');
+      const questionText = questionVariations[randomIndex];
+      
+      appendMessage(questionText, 'bot');
+      
       if (speakMode) {
-        textToSpeech(questionVariations[randomIndex]); // Convert question to speech if in speak mode
+        speakQuestion(questionText);
       }
+      
       userInput.focus();
 
-      // Show image upload section if needed
       if (imageUploadFlags[currentQuestionIndex]) {
         showImageUploadSection();
       } else {
         hideImageUploadSection();
       }
     } else {
-      // Move to the next category
       currentCategoryIndex++;
-      currentQuestionIndex = 0; // Reset question index for the new category
+      currentQuestionIndex = 0;
       if (currentCategoryIndex < categories.length) {
-        // Move to the next carousel slide
         $('#inspectionCarousel').carousel(currentCategoryIndex);
         const categoryTransitions = [
           "➡️ Alright, let's move on to the next category!",
@@ -129,79 +127,44 @@ function askNextQuestion() {
         const randomIndex = Math.floor(Math.random() * categoryTransitions.length);
         appendMessage(categoryTransitions[randomIndex], 'bot');
         if (speakMode) {
-          textToSpeech(categoryTransitions[randomIndex]); // Convert transition to speech if in speak mode
+          speakQuestion(categoryTransitions[randomIndex]);
         }
-        askNextQuestion(); // Ask the next question in the new category
+        askNextQuestion();
       } else {
-        // All questions have been answered
-        submitResponses(); // Submit all collected responses
+        submitResponses();
       }
     }
   } else {
-    // All questions have been answered
-    submitResponses(); // Submit all collected responses
+    submitResponses();
   }
 }
 
-// Previous and Next controls
-$('.carousel-control-prev').on('click', function() {
-  appendMessage("🔄 Did you miss something here?", 'bot');
-});
-
-$('.carousel-control-next').on('click', function() {
-  appendMessage("🔄 Did you complete the previous section?", 'bot');
-});
-
-// Speech recognition setup
-const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-recognition.continuous = false; // Stop after one result
-recognition.interimResults = false; // No interim results
-
-// Start speech recognition when user clicks the record button
-recordButton.addEventListener('click', () => {
-  if (listenMode) {
-    recognition.start();
-    appendMessage("🎤 Listening for your voice input...", 'bot');
-  } else {
-    appendMessage("🔇 Listening mode is off. Please enable it to use voice input.", 'bot');
-  }
-});
-
-// Handle the result from speech recognition
-recognition.onresult = (event) => {
-  const transcript = event.results[0][0].transcript;
-  appendMessage(`🗣️ You said: ${transcript}`, 'user');
-  processAnswer(transcript);
-};
-
-// Handle errors
-recognition.onerror = (event) => {
-  appendMessage(`❌ Error occurred in recognition: ${event.error}`, 'bot');
-};
-
-// Speak the current question when the speak button is clicked
-speakButton.addEventListener('click', () => {
-  if (currentCategoryIndex < categories.length && currentQuestionIndex < categories[currentCategoryIndex].questions.length) {
-    const question = categories[currentCategoryIndex].questions[currentQuestionIndex];
-    if (speakMode) {
-      textToSpeech(question); // Speak the current question only if in speak mode
-    } else {
-      appendMessage("🔇 Speak mode is off. Please enable it to hear the questions.", 'bot');
+function speakQuestion(questionText) {
+  fetch('/text-to-speech', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ 
+      text: questionText,
+      is_question: true
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.audio) {
+      const audio = new Audio(data.audio);
+      audio.play();
+    } else if (data.message) {
+      console.log(data.message); // Log if it's not a question
     }
-  } else {
-    appendMessage("❗ No current question to speak.", 'bot');
-  }
-});
+  })
+  .catch(error => {
+    console.error('Error in text-to-speech:', error);
+    appendMessage('🔇 Sorry, I couldn\'t speak that out loud. There was an error with the text-to-speech service.', 'bot');
+  });
+}
 
-// Handle the submit button click
-submitButton.addEventListener('click', () => {
-  const answer = userInput.value.trim();
-  if (answer) {
-    processAnswer(answer);
-  }
-});
-
-// Process the answer and move to the next question
 function processAnswer(answer) {
   const userResponses = [
     "✅ Got it, thanks for your response.",
@@ -210,40 +173,18 @@ function processAnswer(answer) {
   ];
   const randomIndex = Math.floor(Math.random() * userResponses.length);
   appendMessage(userResponses[randomIndex], 'bot');
-  appendMessage(`💬 Your answer: ${answer}`, 'user'); // Display user input in chat
-  userInput.value = ''; // Clear input
+  appendMessage(`💬 Your answer: ${answer}`, 'user');
+  userInput.value = '';
 
-  // Store the response
   const question = categories[currentCategoryIndex].questions[currentQuestionIndex];
   responses.push({ question, answer });
 
-  currentQuestionIndex++; // Move to the next question
-  askNextQuestion(); // Ask the next question
+  currentQuestionIndex++;
+  askNextQuestion();
 }
 
-// Toggle Speak Mode
-speakModeToggle.addEventListener('change', () => {
-  speakMode = speakModeToggle.checked;
-  if (speakMode) {
-    appendMessage("🔊 Speak mode enabled. I will read the questions aloud.", 'bot');
-  } else {
-    appendMessage("🔇 Speak mode disabled.", 'bot');
-  }
-});
-
-// Toggle Listen Mode
-listenModeToggle.addEventListener('change', () => {
-  listenMode = listenModeToggle.checked;
-  if (listenMode) {
-    appendMessage("🎧 Listen mode enabled. I will listen for your voice input.", 'bot');
-  } else {
-    appendMessage("🔇 Listen mode disabled.", 'bot');
-  }
-});
-
 function submitResponses() {
-  // Submit responses to the backend
-  fetch('/submit', {  // Ensure this matches the endpoint in your Flask app
+  fetch('/submit', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -253,15 +194,16 @@ function submitResponses() {
   .then(response => response.json())
   .then(data => {
     appendMessage("✅ All questions have been answered! Thank you.", 'bot');
-    summaryContainer.innerHTML = `<p>${data.summary}</p>`;
-    $('#summaryModal').modal('show'); // Show the summary modal
+    if (speakMode) {
+      speakQuestion("All questions have been answered! Thank you.");
+    }
+    displaySummary(data.summary);
   })
   .catch(error => {
     console.error('Error submitting responses:', error);
     appendMessage('❌ Oops, something went wrong while submitting your responses. Please try again.', 'bot');
   });
 }
-
 
 function showImageUploadSection() {
   imageUploadSection.style.display = 'block';
@@ -271,27 +213,114 @@ function hideImageUploadSection() {
   imageUploadSection.style.display = 'none';
 }
 
-function displaySummary(data) {
-  const summaryContent = document.getElementById('summary-content');
-  summaryContent.innerHTML = '';
+function displaySummary(summary) {
+  summaryContainer.innerHTML = marked.parse(summary);
+}
 
-  // Loop through each question and answer pair
-  data.forEach(item => {
-    const questionAnswerDiv = document.createElement('div');
-    questionAnswerDiv.classList.add('question-answer');
+// Event Listeners
+submitButton.addEventListener('click', () => {
+  const answer = userInput.value.trim();
+  if (answer) {
+    processAnswer(answer);
+  }
+});
 
-    // Create question and answer elements
-    const questionElement = document.createElement('div');
-    questionElement.classList.add('question');
-    questionElement.innerHTML = `<strong>Question:</strong> ${item.question}`;
+speakButton.addEventListener('click', () => {
+  if (currentCategoryIndex < categories.length && currentQuestionIndex < categories[currentCategoryIndex].questions.length) {
+    const question = categories[currentCategoryIndex].questions[currentQuestionIndex];
+    if (speakMode) {
+      speakQuestion(question);
+    } else {
+      appendMessage("🔇 Speak mode is off. Please enable it to hear the questions.", 'bot');
+    }
+  } else {
+    appendMessage("❗ No current question to speak.", 'bot');
+  }
+});
 
-    const answerElement = document.createElement('div');
-    answerElement.classList.add('answer');
-    answerElement.innerHTML = `<strong>Response:</strong> ${item.answer}`;
+recordButton.addEventListener('click', () => {
+  if (listenMode) {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      appendMessage("🎤 Processing your voice input...", 'bot');
+    } else {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
 
-    // Append to the container
-    questionAnswerDiv.appendChild(questionElement);
-    questionAnswerDiv.appendChild(answerElement);
-    summaryContent.appendChild(questionAnswerDiv);
+          mediaRecorder.addEventListener("dataavailable", event => {
+            audioChunks.push(event.data);
+          });
+
+          mediaRecorder.addEventListener("stop", () => {
+            const audioBlob = new Blob(audioChunks);
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = function() {
+              const base64Audio = reader.result;
+              speechToText(base64Audio);
+            }
+          });
+
+          mediaRecorder.start();
+          appendMessage("🎤 Listening for your voice input...", 'bot');
+        });
+    }
+  } else {
+    appendMessage("🔇 Listening mode is off. Please enable it to use voice input.", 'bot');
+  }
+});
+
+speakModeToggle.addEventListener('change', () => {
+  speakMode = speakModeToggle.checked;
+  if (speakMode) {
+    appendMessage("🔊 Speak mode enabled. I will read the questions aloud.", 'bot');
+  } else {
+    appendMessage("🔇 Speak mode disabled.", 'bot');
+  }
+});
+
+listenModeToggle.addEventListener('change', () => {
+  listenMode = listenModeToggle.checked;
+  if (listenMode) {
+    appendMessage("🎧 Listen mode enabled. I will listen for your voice input.", 'bot');
+  } else {
+    appendMessage("🔇 Listen mode disabled.", 'bot');
+  }
+});
+
+$('.carousel-control-prev').on('click', function() {
+  appendMessage("🔄 Did you miss something here?", 'bot');
+});
+
+$('.carousel-control-next').on('click', function() {
+  appendMessage("🔄 Did you complete the previous section?", 'bot');
+});
+
+function speechToText(audioData) {
+  fetch('/speech-to-text', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ audio: audioData })
+  })
+  .then(response => response.json())
+  .then(data => {
+    appendMessage(`🗣️ You said: ${data.text}`, 'user');
+    processAnswer(data.text);
+  })
+  .catch(error => {
+    console.error('Error in speech recognition:', error);
+    appendMessage('❌ Sorry, I couldn\'t understand that. Could you please try again?', 'bot');
   });
 }
+
+// Initialize the chatbot
+document.addEventListener('DOMContentLoaded', () => {
+  appendMessage("Welcome to the Inspection Chatbot! How can I assist you today?", 'bot');
+  if (speakMode) {
+    speakQuestion("Welcome to the Inspection Chatbot! How can I assist you today?");
+  }
+});

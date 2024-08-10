@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+import whisper
 import json
-import uuid  # Import uuid for unique identifiers
+import uuid
 from urllib.parse import quote_plus
-from pymongo import MongoClient
+import base64
+import os
+import tempfile
+import pyttsx3
 
 app = Flask(__name__)
 
@@ -41,6 +44,17 @@ question_sequence = [
 
 # Define conditions for concerning responses
 concerning_conditions = ["needs replacement", "bad", "low", "issue", "leak", "rust", "damage"]
+
+# Initialize Whisper model
+whisper_model = whisper.load_model("base")
+
+# Initialize pyttsx3
+engine = pyttsx3.init()
+
+# Set properties for the voice
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)  # This sets it to the second available voice
+engine.setProperty('rate', 150)  # Speed of speech
 
 def is_concerning(response):
     """Check if the response indicates a concerning condition."""
@@ -121,17 +135,55 @@ def submit_responses():
 
     return jsonify({'summary': summary_text})
 
-@app.route('/responses', methods=['GET'])
-def get_responses():
-    """Retrieve all responses from the database."""
-    responses = list(responses_collection.find({}, {'_id': 0}))  # Exclude the MongoDB ObjectId
-    return jsonify(responses)
+@app.route('/speech-to-text', methods=['POST'])
+def speech_to_text():
+    audio_data = request.json['audio']
+    
+    # Decode base64 audio data
+    audio_bytes = base64.b64decode(audio_data.split(',')[1])
+    
+    # Save audio to a temporary file
+    with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+        temp_file.write(audio_bytes)
+        temp_file_path = temp_file.name
+    
+    # Transcribe using Whisper
+    result = whisper_model.transcribe(temp_file_path)
+    
+    # Remove temporary file
+    os.remove(temp_file_path)
+    
+    return jsonify({'text': result['text']})
 
-@app.route('/concerning-responses', methods=['GET'])
-def get_concerning_responses():
-    """Retrieve concerning responses from the database."""
-    concerning_responses = list(concerning_responses_collection.find({}, {'_id': 0}))  # Exclude the MongoDB ObjectId
-    return jsonify(concerning_responses)
+@app.route('/text-to-speech', methods=['POST'])
+def text_to_speech():
+    try:
+        text = request.json['text']
+        is_question = request.json.get('is_question', False)
+        
+        if not is_question:
+            return jsonify({'message': 'Not a question, skipping text-to-speech'}), 200
+        
+        # Generate speech using pyttsx3
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+            engine.save_to_file(text, temp_file.name)
+            engine.runAndWait()
+            temp_file_path = temp_file.name
+        
+        # Read the generated audio file
+        with open(temp_file_path, 'rb') as audio_file:
+            audio_data = audio_file.read()
+        
+        # Remove temporary file
+        os.remove(temp_file_path)
+        
+        # Encode audio to base64
+        audio_base64 = base64.b64encode(audio_data).decode('utf-8')
+        
+        return jsonify({'audio': f'data:audio/wav;base64,{audio_base64}'})
+    except Exception as e:
+        print(f"Error in text-to-speech: {str(e)}")
+        return jsonify({'error': str(e), 'message': 'Text-to-speech conversion failed. Please check your system configuration.'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
