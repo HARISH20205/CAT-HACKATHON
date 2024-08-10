@@ -3,13 +3,20 @@ from pymongo import MongoClient
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import json
 import uuid  # Import uuid for unique identifiers
+from urllib.parse import quote_plus
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
-# MongoDB setup with your connection string
-client = MongoClient('mongodb+srv://mantissa6789:Mantis2510@cluster0.9ramotn.mongodb.net/caterpillar-hackathon?retryWrites=true&w=majority')
-db = client['caterpillar-hackathon']  # Database name
-responses_collection = db['responses']  # Collection for storing responses
+# Encode your username and password
+username = quote_plus('harishkb20205')
+password = quote_plus('Harish@20205')
+
+# Create the connection string with the encoded username and password
+client = MongoClient(f'mongodb+srv://{username}:{password}@cat.agry6vb.mongodb.net/Service?retryWrites=true&w=majority')
+
+db = client['Service']  # Database name
+responses_collection = db['Data']  # Collection for storing responses
 concerning_responses_collection = db['concerning_responses']  # Collection for concerning responses
 
 # Load the inspection data

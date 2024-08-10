@@ -270,28 +270,3 @@ function showImageUploadSection() {
 function hideImageUploadSection() {
   imageUploadSection.style.display = 'none';
 }
-
-function displaySummary(data) {
-  const summaryContent = document.getElementById('summary-content');
-  summaryContent.innerHTML = '';
-
-  // Loop through each question and answer pair
-  data.forEach(item => {
-    const questionAnswerDiv = document.createElement('div');
-    questionAnswerDiv.classList.add('question-answer');
-
-    // Create question and answer elements
-    const questionElement = document.createElement('div');
-    questionElement.classList.add('question');
-    questionElement.innerHTML = `<strong>Question:</strong> ${item.question}`;
-
-    const answerElement = document.createElement('div');
-    answerElement.classList.add('answer');
-    answerElement.innerHTML = `<strong>Response:</strong> ${item.answer}`;
-
-    // Append to the container
-    questionAnswerDiv.appendChild(questionElement);
-    questionAnswerDiv.appendChild(answerElement);
-    summaryContent.appendChild(questionAnswerDiv);
-  });
-}

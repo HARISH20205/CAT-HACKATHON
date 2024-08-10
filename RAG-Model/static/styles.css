@@ -186,6 +186,38 @@ body {
     left: -2.25rem;
   }
   
+#summary-container {
+    background-color: #1e1e1e;
+    border: 2px solid #ffcc00;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(255, 204, 0, 0.3);
+}
+
+#summary-container h3 {
+    color: #ffcc00;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.question-answer {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+}
+
+.question {
+    color: #ffcc00;
+    font-weight: bold;
+}
+
+.answer {
+    color: #f0f0f0;
+}
+
+
   @media (max-width: 576px) {
     .toggle-switches {
       top: -50px;
