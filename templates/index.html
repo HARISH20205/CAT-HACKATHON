@@ -58,19 +58,39 @@
     <div id="image-upload-section" class="mt-3"></div>
 
     <!-- Summary Section -->
-    <!-- Summary Section -->
-  <div id="summary-container" class="mt-3">
-    <h3>Inspection Summary</h3>
-    <div id="summary-content">
-      <!-- Dynamic content will be inserted here -->
-  </div>
-</div>
+    <div id="summary-container" class="mt-3">
+      <h3>Inspection Summary</h3>
+      <div id="summary-content">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+    </div>
 
   </div>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <!-- Add marked.js -->
+  
+  <script>
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('Connected to the server');
+    });
+
+    socket.on('transcription_result', (result) => {
+      // Handle the transcribed text
+      console.log('Transcription result:', result);
+      appendMessage(`🗣️ You said: ${result}`, 'user');
+      processAnswer(result); // Process the transcribed text as an answer
+    });
+
+    // Function to send voice input to the server
+    function sendVoiceInput(audioUrl) {
+      socket.emit('voice_input', { audio_url: audioUrl });
+    }
+  </script>
 </body>
 </html>

@@ -17,6 +17,9 @@ let speakMode = false;
 let listenMode = false;
 let audioChunks = [];
 
+// Connect to the WebSocket server
+const socket = io();
+
 // Fetch questions from the backend
 fetch('/questions')
   .then(response => {
@@ -256,7 +259,11 @@ recordButton.addEventListener('click', () => {
           });
 
           mediaRecorder.addEventListener("stop", () => {
-            sendAudioToAssemblyAI(audioChunks);
+            const audioBlob = new Blob(audioChunks);
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // Send the audio data to the server using WebSocket
+            sendVoiceInput(audioUrl);
           });
 
           appendMessage("🎤 Listening for your voice input...", 'bot');
@@ -307,50 +314,9 @@ $('.carousel-control-next').on('click', function() {
   appendMessage("🔄 Did you complete the previous section?", 'bot');
 });
 
-function sendAudioToAssemblyAI(audioChunks) {
-  const audioBlob = new Blob(audioChunks);
-  const audioUrl = URL.createObjectURL(audioBlob);
-
-  fetch('https://api.assemblyai.com/v2/transcript', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': '8480569d4fd14d15912f80690167e373'
-    },
-    body: JSON.stringify({ audio_url: audioUrl })
-  })
-  .then(response => response.json())
-  .then(data => {
-    const transcriptId = data.id;
-    pollTranscriptionStatus(transcriptId);
-  })
-  .catch(error => {
-    console.error('Error sending audio to AssemblyAI:', error);
-    appendMessage('❌ Sorry, there was an error processing your voice input. Please try again.', 'bot');
-  });
-}
-
-function pollTranscriptionStatus(transcriptId) {
-  fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
-    headers: {
-      'Authorization': 'YOUR_API_KEY_HERE'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.status === 'completed') {
-      appendMessage(`🗣️ You said: ${data.text}`, 'user');
-      processAnswer(data.text);
-    } else {
-      setTimeout(() => {
-        pollTranscriptionStatus(transcriptId);
-      }, 1000); // Check status every 1 second
-    }
-  })
-  .catch(error => {
-    console.error('Error polling transcription status:', error);
-    appendMessage('❌ Sorry, there was an error processing your voice input. Please try again.', 'bot');
-  });
+// WebSocket functions
+function sendVoiceInput(audioUrl) {
+  socket.emit('voice_input', { audio_url: audioUrl });
 }
 
 // Initialize the chatbot
