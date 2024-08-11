@@ -109,6 +109,7 @@ def submit_responses():
     concerning_responses_collection.insert_one({'inspection_id': inspection_id, 'concerning_responses': concerning_responses})
 
         # Create a PDF document
+    print(responses)
     data = responses
     pdf_file = "inspection_report.pdf"
     doc = SimpleDocTemplate(pdf_file, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
@@ -213,28 +214,17 @@ def submit_responses():
     }
 
     # Function to add a section to the content
-    def add_section(title, questions):
-        content.append(Paragraph(title, styles['Heading1']))
-        for question in questions:
-            full_question = question_mapping.get(question, question)
-            answer = data.get(full_question, {})
-            text = answer.get('text', 'Not available')
-            if text=="":
-                text="-"
-            content.append(Paragraph(f"<b>{question}</b>: {text}", styles['Normal']))
-            
-            images = answer.get('images', [])
-            if images:
-                for img_path in images:
-                    if os.path.exists(img_path):
-                        img = Image(img_path)
-                        img.drawHeight = 2*inch
-                        img.drawWidth = 3*inch
-                        content.append(img)
-                    else:
-                        content.append(Paragraph(f"Image not found: {img_path}", styles['Normal']))
-            
-            content.append(Spacer(1, 0.1*inch))
+    def add_section(title, data):
+        content.append(Paragraph(f"<b>{title}</b>", styles['Heading2']))
+        content.append(Spacer(1, 0.2 * inch))
+
+        for item in data:
+            # Use the question_mapping to get the full question if available, otherwise use the item as is
+            full_question = question_mapping.get(item, item)
+            answer = next((response['answer'] for response in responses if response['question'] == full_question), "N/A")
+            content.append(Paragraph(f"{full_question}: {answer}", styles['Normal']))
+            content.append(Spacer(1, 0.1 * inch))
+
 
     # Add all sections to the content
     for section_title, questions in categories.items():
