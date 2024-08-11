@@ -1,0 +1,233 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212; /* Dark background for the body */
+    color: #f0f0f0; /* Light text color */
+  }
+  
+  h1 {
+    color: #ffcc00; /* Yellow color for the header */
+    text-align: center;
+    margin-top: 20px;
+    text-shadow: 2px 2px 4px rgba(255, 204, 0, 0.5); /* Add a subtle yellow shadow */
+  }
+  
+  #submit-button {
+    background-color: #ffcc00; /* Yellow background for the button */
+    color: #121212; /* Dark text color for the button */
+    border: none;
+    transition: background-color 0.3s ease;
+    font-weight: bold; /* Make the button text bold */
+    text-transform: uppercase; /* Uppercase the button text */
+  }
+  
+  #submit-button:hover {
+    background-color: #e6b800; /* Slightly darker yellow on hover */
+    box-shadow: 0px 0px 10px #ffcc00; /* Add a yellow glow on hover */
+  }
+  
+  #speak-button {
+    background-color: #17a2b8; /* Info button color */
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+  }
+  
+  #speak-button:hover {
+    background-color: #138496;
+    box-shadow: 0px 0px 10px #17a2b8;
+  }
+  
+  #record-button {
+    background-color: #6c757d; /* Secondary button color */
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+  }
+  
+  #record-button:hover {
+    background-color: #5a6268;
+    box-shadow: 0px 0px 10px #6c757d;
+  }
+  
+  .card {
+    background-color: #1e1e1e; /* Dark background for the card */
+    border: 2px solid #ffcc00; /* Thicker yellow border for the card */
+    border-radius: 15px; /* Rounded corners for a softer look */
+    box-shadow: 0px 0px 10px rgba(255, 204, 0, 0.3); /* Add a subtle yellow shadow */
+    position: relative;
+  }
+  
+  .card-body {
+    height: 300px; /* Fixed height for the chat box */
+    overflow-y: auto; /* Allow vertical scrolling */
+    padding: 20px; /* Increase the padding for better readability */
+  }
+  
+  .bot-message {
+    text-align: left;
+    background-color: #ffcc00; /* Yellow bubble for bot messages */
+    color: #121212; /* Dark text color for bot messages */
+    border-radius: 20px; /* Rounded corners for bubbles */
+    padding: 15px; /* Increase the padding for better readability */
+    margin-bottom: 15px; /* Increase the margin for better spacing */
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Add a subtle dark shadow */
+    width: fit-content; /* Adjust width based on content */
+    max-width: 75%; /* Limit width to 75% of the card */
+    display: inline-block;
+  }
+  
+  .user-message {
+    text-align: right;
+    background-color: #333; /* Black bubble for user messages */
+    color: #ffcc00; /* Yellow text for user messages */
+    border-radius: 20px; /* Rounded corners for bubbles */
+    padding: 15px; /* Increase the padding for better readability */
+    margin-bottom: 15px; /* Increase the margin for better spacing */
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Add a subtle dark shadow */
+    width: fit-content; /* Adjust width based on content */
+    max-width: 75%; /* Limit width to 75% of the card */
+    display: inline-block;
+    align-self: flex-end;
+  }
+  
+  .chat-body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  input#user-input {
+    background-color: #1e1e1e;
+    border: 2px solid #ffcc00;
+    color: #f0f0f0;
+    border-radius: 10px; /* Rounded corners for input */
+    padding: 10px; /* Increase the padding for better readability */
+    font-size: 16px; /* Increase the font size for better readability */
+  }
+  
+  input#user-input:focus {
+    outline: none;
+    box-shadow: 0px 0px 10px #ffcc00; /* Highlight on focus with a larger glow */
+  }
+  
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    background-color: #ffcc00; /* Yellow color for the carousel controls */
+    border-radius: 50%; /* Round the carousel controls */
+    padding: 10px; /* Add some padding to the controls */
+    box-shadow: 0px 0px 10px rgba(255, 204, 0, 0.5); /* Add a subtle yellow shadow */
+  }
+  
+  .carousel-item {
+    padding: 40px; /* Increase the padding for better spacing */
+    background-color: #1e1e1e;
+    border-radius: 20px; /* Rounded corners for the carousel items */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Add a subtle dark shadow */
+    min-height: 200px; /* Ensure minimum height to prevent overlapping */
+  }
+  
+  h3 {
+    color: #ffcc00;
+    text-shadow: 2px 2px 4px rgba(255, 204, 0, 0.5); /* Add a subtle yellow shadow */
+    text-align: center; /* Center the header */
+  }
+  
+  .toggle-switches {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .custom-control-label::before,
+  .custom-control-label::after {
+    top: 0.25rem;
+    width: 2.25rem;
+    height: 1.25rem;
+  }
+  
+  .custom-control-label::before {
+    background-color: #6c757d;
+    border-radius: 1.5rem;
+    transition: background-color 0.3s, border 0.3s;
+  }
+  
+  .custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #ffcc00;
+  }
+  
+  .custom-control-label::after {
+    top: 0.35rem;
+    left: 0.35rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+  }
+  
+  .custom-control-input:checked ~ .custom-control-label::after {
+    transform: translateX(1rem);
+  }
+  
+  .custom-control-label {
+    padding-left: 2.75rem;
+    line-height: 1.5;
+    color: #f0f0f0;
+  }
+  
+  .custom-switch .custom-control-label::before {
+    left: -2.25rem;
+  }
+  
+  .custom-switch .custom-control-label::after {
+    left: -2.25rem;
+  }
+  
+#summary-container {
+    background-color: #1e1e1e;
+    border: 2px solid #ffcc00;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(255, 204, 0, 0.3);
+}
+
+#summary-container h3 {
+    color: #ffcc00;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.question-answer {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+}
+
+.question {
+    color: #ffcc00;
+    font-weight: bold;
+}
+
+.answer {
+    color: #f0f0f0;
+}
+
+
+  @media (max-width: 576px) {
+    .toggle-switches {
+      top: -50px;
+      right: 10px;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+  
+    .custom-control {
+      margin-bottom: 10px;
+    }
+  }
+  

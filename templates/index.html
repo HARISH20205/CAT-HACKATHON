@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inspection App</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Inspection App</h1>
+
+    <!-- Carousel -->
+    <div id="inspectionCarousel" class="carousel slide mt-4" data-ride="carousel">
+      <div class="carousel-inner" id="questions-carousel-inner">
+        <!-- Slides will be inserted here dynamically -->
+      </div>
+      <!-- Controls -->
+      <a class="carousel-control-prev" href="#inspectionCarousel" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next" href="#inspectionCarousel" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+
+    <div id="prompt-container" class="card mt-4 position-relative">
+      <div class="toggle-switches">
+        <div class="custom-control custom-switch mr-2">
+          <input type="checkbox" class="custom-control-input" id="speak-mode-toggle">
+          <label class="custom-control-label" for="speak-mode-toggle">Speak Mode</label>
+        </div>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="listen-mode-toggle">
+          <label class="custom-control-label" for="listen-mode-toggle">Listening Mode</label>
+        </div>
+      </div>
+      <div class="card-body chat-body">
+        <!-- Chat messages will appear here -->
+      </div>
+    </div>
+
+    <div class="input-group mt-3">
+      <input type="text" id="user-input" class="form-control" placeholder="Type your response here..." />
+      <div class="input-group-append">
+        <button id="record-button" class="btn btn-secondary"><i class="fas fa-microphone"></i></button>
+        <button id="speak-button" class="btn btn-info"><i class="fas fa-volume-up"></i></button>
+        <button id="submit-button" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+
+    <!-- Image upload section -->
+    <div id="image-upload-section" class="mt-3"></div>
+
+    <!-- Summary Section -->
+    <!-- Summary Section -->
+  <div id="summary-container" class="mt-3">
+    <h3>Inspection Summary</h3>
+    <div id="summary-content">
+      <!-- Dynamic content will be inserted here -->
+  </div>
+</div>
+
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <!-- Add marked.js -->
+</body>
+</html>
